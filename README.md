@@ -15,6 +15,10 @@ docker logs myapp 2>&1 | ai "why is this failing"
 
 Works in **PowerShell** and **cmd.exe** out of the box.
 
+Two modes:
+- **`ai`** — ask a question or pipe output for explanation
+- **`aido`** — give it a goal and it executes commands step by step to get there
+
 ## Install
 
 **1. Get a model**
@@ -57,18 +61,35 @@ $env:AI_API_KEY = "your-api-key-here"
 
 ## Usage
 
+### `ai` — ask / explain
+
 ```powershell
-# PowerShell
 ai "how do I list open ports"
 netstat -ano | ai "what's using the most connections"
 npm install 2>&1 | ai "why is this failing"
 ```
 
+Same syntax in cmd.exe:
+
 ```cmd
-rem cmd.exe
 ai "how do I list open ports"
-netstat -ano | ai "what's using the most connections"
-npm install 2>&1 | ai "why is this failing"
+netstat -ano 2>&1 | ai "what's using the most connections"
+```
+
+### `aido` — agent mode
+
+Give it a goal. It proposes one command at a time, shows you what it wants to run, and asks before executing. Loops until the goal is done.
+
+```powershell
+aido "install python 3.11"
+aido "find and kill whatever is using port 8080"
+aido "create a venv and install requests"
+```
+
+Add `-Yes` to skip confirmation prompts (use carefully):
+
+```powershell
+aido "update all winget packages" -Yes
 ```
 
 ## Configuration
