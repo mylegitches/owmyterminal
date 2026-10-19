@@ -43,26 +43,32 @@ Point at a remote Ollama host (homelab, NAS, etc.):
 . $PROFILE
 ```
 
-## Switch hosts on the fly
+## Configuration
+
+Config lives in `config.ps1` inside the repo — edit it any time, no reinstall needed:
 
 ```powershell
-# Use homelab Ollama
-$env:OLLAMA_URL = "http://192.168.1.10:11434"
+# owmyterminal/config.ps1
 
-# Switch back to local
-$env:OLLAMA_URL = "http://localhost:11434"
+# MiniMax cloud
+$env:AI_BASE_URL = "https://api.minimaxi.chat"
+$env:AI_MODEL    = "minimax-m3"
+$env:AI_API_KEY  = "your-api-key"
 
-# Change model
-$env:OLLAMA_MODEL = "mistral"
+# Local Ollama (no key needed)
+# $env:AI_BASE_URL = "http://localhost:11434"
+# $env:AI_MODEL    = "llama3.2"
+# $env:AI_API_KEY  = ""
 ```
+
+`config.ps1` is git-ignored so your API key and personal settings never get committed. See `config.example.ps1` for all options.
 
 ## Manual install (no installer)
 
 Add to your `$PROFILE`:
 
 ```powershell
-$env:OLLAMA_URL   = "http://localhost:11434"
-$env:OLLAMA_MODEL = "llama3.2"
+. "C:\path\to\owmyterminal\config.ps1"
 . "C:\path\to\owmyterminal\ai.ps1"
 ```
 

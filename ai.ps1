@@ -1,9 +1,12 @@
 # ow-my-terminal: AI assistant for PowerShell
 # Source this file or let install.ps1 add it to your $PROFILE
 #
-# Config (env vars or set defaults below):
-#   $env:OLLAMA_URL   — Ollama base URL  (default: http://localhost:11434)
-#   $env:OLLAMA_MODEL — model name       (default: llama3.2)
+# Config (set in config.ps1 inside this repo):
+#   $env:AI_BASE_URL  — API base URL
+#                       Ollama local:  http://localhost:11434
+#                       MiniMax cloud: https://api.minimaxi.chat
+#   $env:AI_MODEL     — model name   (e.g. minimax-m3, llama3.2, mistral)
+#   $env:AI_API_KEY   — API key      (leave unset for local Ollama)
 #
 # Usage:
 #   ai "how do I find what process is using port 8080"
@@ -47,8 +50,9 @@ function ai {
             return
         }
 
-        $url   = if ($env:OLLAMA_URL)   { $env:OLLAMA_URL }   else { "http://localhost:11434" }
-        $model = if ($env:OLLAMA_MODEL) { $env:OLLAMA_MODEL } else { "llama3.2" }
+        $baseUrl = if ($env:AI_BASE_URL) { $env:AI_BASE_URL.TrimEnd('/') } else { "http://localhost:11434" }
+        $model   = if ($env:AI_MODEL)    { $env:AI_MODEL }    else { "llama3.2" }
+        $apiKey  = $env:AI_API_KEY
 
         $body = [ordered]@{
             model    = $model
@@ -60,10 +64,14 @@ function ai {
         } | ConvertTo-Json -Depth 5 -Compress
 
         try {
-            $req = [System.Net.HttpWebRequest]::Create("$url/api/chat")
+            $req = [System.Net.HttpWebRequest]::Create("$baseUrl/v1/chat/completions")
             $req.Method      = "POST"
             $req.ContentType = "application/json"
             $req.Timeout     = 120000
+
+            if ($apiKey) {
+                $req.Headers.Add("Authorization", "Bearer $apiKey")
+            }
 
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($body)
             $req.ContentLength = $bytes.Length
@@ -77,12 +85,13 @@ function ai {
             Write-Host ""
             while (-not $reader.EndOfStream) {
                 $line = $reader.ReadLine()
-                if ($line) {
+                if ($line -and $line.StartsWith("data: ")) {
+                    $json = $line.Substring(6)
+                    if ($json -eq "[DONE]") { break }
                     try {
-                        $chunk = $line | ConvertFrom-Json
-                        if ($chunk.message.content) {
-                            Write-Host $chunk.message.content -NoNewline
-                        }
+                        $chunk = $json | ConvertFrom-Json
+                        $content = $chunk.choices[0].delta.content
+                        if ($content) { Write-Host $content -NoNewline }
                     } catch { }
                 }
             }
@@ -91,8 +100,8 @@ function ai {
             $resp.Close()
         }
         catch {
-            Write-Host "Could not reach Ollama at $url" -ForegroundColor Red
-            Write-Host "  Set `$env:OLLAMA_URL to your Ollama host, e.g. http://192.168.1.10:11434" -ForegroundColor Yellow
+            Write-Host "Could not reach AI at $baseUrl" -ForegroundColor Red
+            Write-Host "  Check AI_BASE_URL, AI_MODEL, and AI_API_KEY in config.ps1" -ForegroundColor Yellow
             Write-Host "  Error: $_" -ForegroundColor DarkGray
         }
     }
