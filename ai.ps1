@@ -54,6 +54,12 @@ function ai {
         $model   = if ($env:AI_MODEL)    { $env:AI_MODEL }    else { "llama3.2" }
         $apiKey  = $env:AI_API_KEY
 
+        # MiniMax keys are <GroupId>.<Secret> — extract GroupId for the URL param
+        $endpoint = "$baseUrl/v1/chat/completions"
+        if ($apiKey -and $apiKey -match '^([a-f0-9]{32})\.') {
+            $endpoint += "?GroupId=$($Matches[1])"
+        }
+
         $body = [ordered]@{
             model    = $model
             messages = @(
@@ -64,7 +70,7 @@ function ai {
         } | ConvertTo-Json -Depth 5 -Compress
 
         try {
-            $req = [System.Net.HttpWebRequest]::Create("$baseUrl/v1/chat/completions")
+            $req = [System.Net.HttpWebRequest]::Create($endpoint)
             $req.Method      = "POST"
             $req.ContentType = "application/json"
             $req.Timeout     = 120000
