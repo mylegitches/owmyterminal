@@ -1,9 +1,9 @@
 # Copy this to config.ps1 and edit to match your setup
 
-# MiniMax cloud
-$env:AI_BASE_URL = "https://api.minimaxi.chat"
-$env:AI_MODEL    = "minimax-m3"
-$env:AI_API_KEY  = "your-minimax-api-key"
+# Ollama Cloud (https://ollama.com — get an API key at ollama.com/settings/keys)
+$env:AI_BASE_URL = "https://ollama.com"
+$env:AI_MODEL    = "minimax-m3"        # any model listed at ollama.com/library
+$env:AI_API_KEY  = "your-ollama-api-key"
 
 # Local Ollama (no API key needed)
 # $env:AI_BASE_URL = "http://localhost:11434"
