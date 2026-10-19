@@ -1,4 +1,4 @@
-# ow-my-terminal
+# OwMyTerminal
 
 AI assistant for PowerShell, powered by [Ollama](https://ollama.com). Ask questions and pipe command output directly — no copy-pasting to a chatbot.
 
