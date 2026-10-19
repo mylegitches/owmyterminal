@@ -174,7 +174,7 @@ Rules:
 
     Write-Host ""
     Write-Host "Goal: $Goal" -ForegroundColor Cyan
-    Write-Host ("─" * 50) -ForegroundColor DarkGray
+    Write-Host ("-" * 50) -ForegroundColor DarkGray
 
     $maxSteps = 15
     for ($step = 1; $step -le $maxSteps; $step++) {
@@ -218,7 +218,7 @@ Rules:
                 Write-Host $output.TrimEnd()
 
                 $messages.Add(@{ role = "assistant"; content = $response })
-                $messages.Add(@{ role = "user";      content = "Command output:`n$($output.Trim())`n`nContinue toward the goal, or say DONE: if it's achieved." })
+                $messages.Add(@{ role = "user";      content = "Command output:`n$($output.Trim())`n`nContinue toward the goal, or say DONE: if it is achieved." })
             } else {
                 Write-Host "  Skipped. Stopping." -ForegroundColor DarkGray
                 break
